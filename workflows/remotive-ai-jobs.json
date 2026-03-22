@@ -1,0 +1,225 @@
+{
+  "name": "AI JOBS",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://remotive.com/api/remote-jobs?search=ai",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "search",
+              "value": "ai engineer jobs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        40
+      ],
+      "id": "a4842f0c-e2a4-4a0f-be64-59bde436620c",
+      "name": "HTTP Request",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c21c7bcd-2356-4ed9-addb-2639fa433396",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "AI",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "8bd059fc-3119-44a9-9141-6fe09da4dede",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "Machine Learning",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1152,
+        -32
+      ],
+      "id": "40adf92c-60a9-470c-aff5-bfbc42f4776a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        928,
+        40
+      ],
+      "id": "65c1b18c-ecff-4961-ae3c-205e943d94e3",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sendTo": "=vadlakarthik9876@gmail.com",
+        "subject": "New AI Job Found 🚀",
+        "emailType": "text",
+        "message": "=`Job Title:{{ $('Loop Over Items').item.json.title }}\n\nCompany: {{ $('Loop Over Items').item.json.company_name }}\nLink: {{ $('Loop Over Items').item.json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        40
+      ],
+      "id": "4de79417-2a07-4936-834a-6c313fd5aa7d",
+      "name": "Send a message",
+      "webhookId": "b18eb49a-7f09-4751-bc03-2195ba0c26d7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SmaUkgDZsg9d5Lj8",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "f48ef809-73bd-4eea-9022-9bfb68922388",
+      "name": "Split Job Posts",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        704,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "id": "3f4e9112-06b5-4e4e-8d29-1a44c8b30f33",
+      "name": "Daily at 9:00 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        40
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Job Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Job Posts": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily at 9:00 AM": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2bee7357-d9a4-48a9-b67f-dbedce403f36",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aef7cf4befc2f89d6f4097d3529c60763616c83db1814d40da90cff68071e340"
+  },
+  "id": "0t6hbfgm0h3vIjpy",
+  "tags": []
+}
